@@ -26,8 +26,9 @@ namespace OptWebApi.Controllers
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody] string value)
+        public My Post([FromBody] My value)
         {
+            return value;
         }
 
         // PUT api/values/5
@@ -41,5 +42,12 @@ namespace OptWebApi.Controllers
         public void Delete(int id)
         {
         }
+    }
+
+    public class My
+    {
+        public int Id { get; set; }
+
+        public string Val { get; set; }
     }
 }
