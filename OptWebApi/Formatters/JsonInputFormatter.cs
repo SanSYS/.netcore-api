@@ -1,7 +1,9 @@
+using System;
 using System.Buffers;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Newtonsoft.Json;
 
@@ -28,10 +30,31 @@ namespace OptWebApi.Formatters
             using (var jw = new JsonTextReader(sw))
             {
                 jw.ArrayPool = _arrayPool;
+
+                try
+                {
+                    var model = _serializer.Deserialize(jw, context.ModelType);
+
+                    return Task.FromResult(InputFormatterResult.Success(model));
+                }
+                catch (JsonReaderException e)
+                {
+                    Console.WriteLine(e);
+
+                    context.HttpContext.Response.StatusCode = 500;
+                    context.HttpContext.Response.WriteAsync(e.ToString());
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+
+                    context.HttpContext.Response.StatusCode = 500;
+
+                    throw;
+                }
                 
-                var model = _serializer.Deserialize(jw, context.ModelType);
                 
-                return Task.FromResult(InputFormatterResult.Success(model));
+                return Task.FromResult(InputFormatterResult.Failure());
             }
         }
     }
